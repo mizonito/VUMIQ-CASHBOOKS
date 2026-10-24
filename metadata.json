@@ -1,0 +1,6 @@
+{
+  "name": "VUMIQ Cashbook",
+  "description": "Production-grade daily bookkeeping, multi-currency cashbook, receivables/payables, and small-business financial ledger.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

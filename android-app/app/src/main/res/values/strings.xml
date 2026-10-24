@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">VUMIQ Cashbook</string>
+    <string name="brand_wordmark">VUMIQ</string>
+    <string name="brand_subtitle">Cashbook</string>
+    <string name="brand_ownership">Owned by Mr. Amin M. Gutale</string>
+    <string name="brand_owned_label">OWNED &amp; CREATED BY</string>
+    <string name="brand_owner_name">Mr. Amin M. Gutale</string>
+    <string name="nav_home">Home</string>
+    <string name="nav_transactions">Ledger</string>
+    <string name="nav_parties">Parties</string>
+    <string name="nav_reports">Reports</string>
+    <string name="nav_settings">Settings</string>
+    <string name="biometric_prompt_title">Unlock VUMIQ Cashbook</string>
+    <string name="biometric_prompt_subtitle">Verify with fingerprint, face, or screen lock</string>
+    <string name="biometric_prompt_description">Confirm your identity for one-tap access to your financial ledger.</string>
+    <string name="biometric_negative_cancel">Cancel</string>
+    <string name="biometric_lock_headline">Ledger Protected</string>
+    <string name="biometric_lock_subtext">Use your fingerprint or face unlock for instant access to your books.</string>
+    <string name="biometric_unlock_cta">Unlock with Fingerprint or Face</string>
+    <string name="settings_security_section_title">Security</string>
+    <string name="settings_biometric_unlock_title">Biometric Unlock</string>
+    <string name="settings_biometric_status_enabled">Saved · Requires fingerprint, face, or screen lock when VUMIQ Cashbook starts.</string>
+    <string name="settings_biometric_status_disabled">Off · Opens your ledger directly at startup without biometric verification.</string>
+    <string name="settings_biometric_status_not_enrolled">No fingerprint, face, or screen lock enrolled on this phone yet. Set one up in Android Settings to activate startup lock.</string>
+    <string name="settings_biometric_status_unavailable">Biometric hardware is not available on this device.</string>
+    <string name="settings_biometric_enroll_cta">Set Up Biometrics in Phone Settings</string>
+    <string name="settings_autolock_label">Auto-lock in background</string>
+    <string name="settings_lock_now_cta">Lock Ledger Now</string>
+    <string name="settings_cloud_section_title">Google Account &amp; Two-Way Cloud Sync</string>
+    <string name="settings_cloud_unconfigured_note">100% Offline-First Mode active. Register com.vumiq.cashbook in Firebase Console and supply google-services.json (or VUMIQ_GOOGLE_SERVICES_JSON) to enable two-way Web Cashbook sync.</string>
+    <string name="settings_cloud_signed_out_note">Sign in with your verified Google account to synchronize accounts, parties, and transactions two-way with VUMIQ Cashbook Web.</string>
+    <string name="settings_cloud_sign_in_cta">Sign in with Google</string>
+    <string name="settings_cloud_signing_in">Connecting Google Account...</string>
+    <string name="settings_cloud_sign_out_cta">Sign Out</string>
+</resources>

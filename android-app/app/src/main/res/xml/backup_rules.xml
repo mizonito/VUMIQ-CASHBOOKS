@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<full-backup-content>
+    <!--
+      Android 8.0–11 (API 26–30) Auto Backup Rules.
+      Protects Room SQLite consistency by excluding transient -wal, -shm, and -journal files.
+    -->
+    <include domain="database" path="vumiq_cashbook_ledger.db" />
+    <exclude domain="database" path="vumiq_cashbook_ledger.db-wal" />
+    <exclude domain="database" path="vumiq_cashbook_ledger.db-shm" />
+    <exclude domain="database" path="vumiq_cashbook_ledger.db-journal" />
+    <include domain="file" path="datastore/" />
+    <include domain="file" path="receipts/" />
+    <include domain="file" path="recovery_snapshots/" />
+</full-backup-content>

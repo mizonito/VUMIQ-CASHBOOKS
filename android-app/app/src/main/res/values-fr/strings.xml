@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">VUMIQ Cashbook</string>
+    <string name="brand_wordmark">VUMIQ</string>
+    <string name="brand_subtitle">Livre de caisse</string>
+    <string name="brand_ownership">Owned by Mr. Amin M. Gutale</string>
+    <string name="brand_owned_label">PROPRIÉTÉ &amp; CRÉATION DE</string>
+    <string name="brand_owner_name">Mr. Amin M. Gutale</string>
+    <string name="nav_home">Accueil</string>
+    <string name="nav_transactions">Journal</string>
+    <string name="nav_parties">Tiers</string>
+    <string name="nav_reports">Rapports</string>
+    <string name="nav_settings">Paramètres</string>
+    <string name="biometric_prompt_title">Déverrouiller VUMIQ Cashbook</string>
+    <string name="biometric_prompt_subtitle">Vérifiez par empreinte, visage ou code</string>
+    <string name="biometric_prompt_description">Confirmez votre identité pour accéder à votre livre de caisse.</string>
+    <string name="biometric_negative_cancel">Annuler</string>
+    <string name="biometric_lock_headline">Livre de caisse protégé</string>
+    <string name="biometric_lock_subtext">Utilisez votre empreinte digitale ou la reconnaissance faciale pour accéder à vos comptes.</string>
+    <string name="biometric_unlock_cta">Déverrouiller (Empreinte / Visage)</string>
+    <string name="settings_security_section_title">Sécurité</string>
+    <string name="settings_biometric_unlock_title">Déverrouillage biométrique</string>
+    <string name="settings_biometric_status_enabled">Activé · Demande votre empreinte, visage ou code au démarrage de VUMIQ Cashbook.</string>
+    <string name="settings_biometric_status_disabled">Désactivé · Ouvre directement le livre de caisse au démarrage.</string>
+    <string name="settings_biometric_status_not_enrolled">Aucune empreinte ou verrouillage configuré sur ce téléphone. Configurez-le dans les paramètres Android.</string>
+    <string name="settings_biometric_status_unavailable">Matériel biométrique non disponible sur cet appareil.</string>
+    <string name="settings_biometric_enroll_cta">Configurer dans les paramètres Android</string>
+    <string name="settings_autolock_label">Reverrouillage automatique en arrière-plan</string>
+    <string name="settings_lock_now_cta">Verrouiller le livre maintenant</string>
+    <string name="settings_cloud_section_title">Compte Google &amp; Synchro Cloud Bidirectionnelle</string>
+    <string name="settings_cloud_unconfigured_note">Mode 100% hors ligne actif. Ajoutez google-services.json (ou VUMIQ_GOOGLE_SERVICES_JSON) pour activer la synchronisation bidirectionnelle avec VUMIQ Web.</string>
+    <string name="settings_cloud_signed_out_note">Connectez-vous avec votre compte Google vérifié pour synchroniser comptes, tiers et opérations avec le Web Cashbook.</string>
+    <string name="settings_cloud_sign_in_cta">Se connecter avec Google</string>
+    <string name="settings_cloud_signing_in">Connexion au compte Google...</string>
+    <string name="settings_cloud_sign_out_cta">Déconnexion</string>
+</resources>

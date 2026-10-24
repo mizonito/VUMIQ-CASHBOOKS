@@ -1,0 +1,745 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "Public non-PII user preferences and active workspace state.",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$",
+          "description": "Firebase Auth UID of the user."
+        },
+        "displayName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100,
+          "description": "Display name of the user."
+        },
+        "defaultBusinessId": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 128,
+          "description": "Default active business ID."
+        },
+        "theme": {
+          "type": "string",
+          "enum": ["light", "dark", "system"],
+          "maxLength": 16,
+          "description": "Preferred UI color theme."
+        },
+        "locale": {
+          "type": "string",
+          "enum": ["en", "fr"],
+          "maxLength": 8,
+          "description": "Preferred interface language."
+        },
+        "notificationsEnabled": {
+          "type": "boolean",
+          "description": "Whether payment reminders are enabled."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server creation timestamp."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server update timestamp."
+        }
+      },
+      "required": ["uid", "displayName", "theme", "locale", "notificationsEnabled", "createdAt", "updatedAt"]
+    },
+    "UserPrivateInfo": {
+      "title": "UserPrivateInfo",
+      "description": "Isolated PII record for user email and contact details.",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$",
+          "description": "Owner UID."
+        },
+        "email": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 254,
+          "description": "Verified user email address."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server creation timestamp."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server update timestamp."
+        }
+      },
+      "required": ["uid", "email", "createdAt", "updatedAt"]
+    },
+    "Business": {
+      "title": "Business",
+      "description": "Isolated small-business bookkeeping workspace.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$",
+          "description": "Business identifier."
+        },
+        "ownerId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$",
+          "description": "Owner Firebase Auth UID."
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120,
+          "description": "Legal or trading name of the business."
+        },
+        "defaultCurrency": {
+          "type": "string",
+          "enum": ["USD", "CDF", "EUR", "GBP", "KES", "SOS", "XOF", "RWF", "ZAR"],
+          "minLength": 3,
+          "maxLength": 3,
+          "description": "ISO 4217 currency code."
+        },
+        "address": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 240,
+          "description": "Business physical address."
+        },
+        "phone": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 40,
+          "description": "Business contact phone."
+        },
+        "fiscalStartMonth": {
+          "type": "integer",
+          "description": "Fiscal year starting month (1-12)."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server creation timestamp."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server update timestamp."
+        }
+      },
+      "required": ["id", "ownerId", "name", "defaultCurrency", "address", "phone", "fiscalStartMonth", "createdAt", "updatedAt"]
+    },
+    "BusinessMember": {
+      "title": "BusinessMember",
+      "description": "Role-based access control membership for a business.",
+      "type": "object",
+      "properties": {
+        "memberUid": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$",
+          "description": "Member UID."
+        },
+        "businessId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$",
+          "description": "Parent business ID."
+        },
+        "ownerId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$",
+          "description": "Owner UID of the business."
+        },
+        "role": {
+          "type": "string",
+          "enum": ["owner", "admin", "accountant", "manager", "viewer"],
+          "maxLength": 20,
+          "description": "Explicit RBAC role."
+        },
+        "displayName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100,
+          "description": "Member display name."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server creation timestamp."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server update timestamp."
+        }
+      },
+      "required": ["memberUid", "businessId", "ownerId", "role", "displayName", "createdAt", "updatedAt"]
+    },
+    "Account": {
+      "title": "Account",
+      "description": "Financial cash, bank, or mobile money account.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$",
+          "description": "Account ID."
+        },
+        "businessId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$",
+          "description": "Parent business ID."
+        },
+        "ownerId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$",
+          "description": "Business owner UID."
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80,
+          "description": "Account display name."
+        },
+        "accountType": {
+          "type": "string",
+          "enum": ["cash", "bank", "mobile_money", "other"],
+          "maxLength": 24,
+          "description": "Classification of financial account."
+        },
+        "currency": {
+          "type": "string",
+          "enum": ["USD", "CDF", "EUR", "GBP", "KES", "SOS", "XOF", "RWF", "ZAR"],
+          "minLength": 3,
+          "maxLength": 3,
+          "description": "Account currency."
+        },
+        "openingBalanceMinor": {
+          "type": "integer",
+          "description": "Opening balance stored in integer minor units."
+        },
+        "status": {
+          "type": "string",
+          "enum": ["active", "archived"],
+          "maxLength": 16,
+          "description": "Operational status of the account."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server creation timestamp."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server update timestamp."
+        }
+      },
+      "required": ["id", "businessId", "ownerId", "name", "accountType", "currency", "openingBalanceMinor", "status", "createdAt", "updatedAt"]
+    },
+    "Category": {
+      "title": "Category",
+      "description": "Income or expense classification preserving historical labels.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$",
+          "description": "Category ID."
+        },
+        "businessId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$",
+          "description": "Parent business ID."
+        },
+        "ownerId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$",
+          "description": "Business owner UID."
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "description": "Category label."
+        },
+        "kind": {
+          "type": "string",
+          "enum": ["income", "expense"],
+          "maxLength": 16,
+          "description": "Category direction."
+        },
+        "color": {
+          "type": "string",
+          "minLength": 4,
+          "maxLength": 16,
+          "pattern": "^#[0-9a-fA-F]{6}$",
+          "description": "Hex color token."
+        },
+        "icon": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 32,
+          "description": "Icon identifier."
+        },
+        "archived": {
+          "type": "boolean",
+          "description": "Soft-archive status so historical reports remain intact."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server creation timestamp."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server update timestamp."
+        }
+      },
+      "required": ["id", "businessId", "ownerId", "name", "kind", "color", "icon", "archived", "createdAt", "updatedAt"]
+    },
+    "Party": {
+      "title": "Party",
+      "description": "Customer, supplier, or counterparty with receivable/payable subledger support.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$",
+          "description": "Party ID."
+        },
+        "businessId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$",
+          "description": "Parent business ID."
+        },
+        "ownerId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$",
+          "description": "Business owner UID."
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100,
+          "description": "Counterparty name."
+        },
+        "partyType": {
+          "type": "string",
+          "enum": ["customer", "supplier", "other"],
+          "maxLength": 16,
+          "description": "Counterparty classification."
+        },
+        "phone": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 40,
+          "description": "Contact phone number."
+        },
+        "address": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 240,
+          "description": "Counterparty address."
+        },
+        "notes": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 500,
+          "description": "Counterparty notes."
+        },
+        "currency": {
+          "type": "string",
+          "enum": ["USD", "CDF", "EUR", "GBP", "KES", "SOS", "XOF", "RWF", "ZAR"],
+          "minLength": 3,
+          "maxLength": 3,
+          "description": "Opening balance currency."
+        },
+        "openingReceivableMinor": {
+          "type": "integer",
+          "description": "Opening receivable in integer minor units."
+        },
+        "openingPayableMinor": {
+          "type": "integer",
+          "description": "Opening payable in integer minor units."
+        },
+        "dueDate": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 10,
+          "description": "Optional YYYY-MM-DD payment reminder due date."
+        },
+        "status": {
+          "type": "string",
+          "enum": ["active", "archived"],
+          "maxLength": 16,
+          "description": "Party active status."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server creation timestamp."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server update timestamp."
+        }
+      },
+      "required": ["id", "businessId", "ownerId", "name", "partyType", "phone", "address", "notes", "currency", "openingReceivableMinor", "openingPayableMinor", "dueDate", "status", "createdAt", "updatedAt"]
+    },
+    "Transaction": {
+      "title": "Transaction",
+      "description": "Authoritative financial transaction record in integer minor units.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$",
+          "description": "Transaction ID."
+        },
+        "businessId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$",
+          "description": "Parent business ID."
+        },
+        "ownerId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$",
+          "description": "Business owner UID."
+        },
+        "idempotencyKey": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$",
+          "description": "Idempotency key preventing duplicate submissions."
+        },
+        "type": {
+          "type": "string",
+          "enum": ["income", "expense", "transfer", "opening_balance", "refund_income", "refund_expense", "credit_sale", "receivable_payment", "credit_purchase", "payable_payment"],
+          "maxLength": 32,
+          "description": "Accounting workflow type."
+        },
+        "amountMinor": {
+          "type": "integer",
+          "description": "Positive integer minor units in source/transaction currency."
+        },
+        "currency": {
+          "type": "string",
+          "enum": ["USD", "CDF", "EUR", "GBP", "KES", "SOS", "XOF", "RWF", "ZAR"],
+          "minLength": 3,
+          "maxLength": 3,
+          "description": "Primary transaction currency."
+        },
+        "convertedAmountMinor": {
+          "type": "integer",
+          "description": "Destination minor units for cross-currency transfers."
+        },
+        "toCurrency": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 3,
+          "description": "Destination currency if cross-currency transfer."
+        },
+        "exchangeRateScaled": {
+          "type": "integer",
+          "description": "Historical exchange rate scaled by 1,000,000 (0 if single-currency)."
+        },
+        "feeMinor": {
+          "type": "integer",
+          "description": "Explicit transfer fee in source currency minor units."
+        },
+        "date": {
+          "type": "string",
+          "minLength": 10,
+          "maxLength": 10,
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+          "description": "ISO calendar date YYYY-MM-DD."
+        },
+        "time": {
+          "type": "string",
+          "minLength": 5,
+          "maxLength": 8,
+          "description": "Local transaction time HH:MM."
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200,
+          "description": "Human-readable transaction description."
+        },
+        "accountId": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 128,
+          "description": "Primary financial account ID (empty only for non-cash credit_sale/credit_purchase)."
+        },
+        "toAccountId": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 128,
+          "description": "Destination financial account ID for transfers."
+        },
+        "categoryId": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 128,
+          "description": "Category ID."
+        },
+        "categoryLabelSnapshot": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 64,
+          "description": "Preserved historical category name."
+        },
+        "partyId": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 128,
+          "description": "Linked customer or supplier ID."
+        },
+        "partyNameSnapshot": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 100,
+          "description": "Preserved counterparty name."
+        },
+        "referenceNumber": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 64,
+          "description": "Receipt, invoice, or bank reference number."
+        },
+        "notes": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 600,
+          "description": "Detailed notes."
+        },
+        "attachmentName": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 120,
+          "description": "Validated attachment filename."
+        },
+        "attachmentMime": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 64,
+          "description": "Validated attachment MIME type."
+        },
+        "dueDate": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 10,
+          "description": "Optional YYYY-MM-DD due date for receivables/payables."
+        },
+        "status": {
+          "type": "string",
+          "enum": ["posted", "voided"],
+          "maxLength": 16,
+          "description": "Posting status (voided is terminal)."
+        },
+        "voidReason": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 240,
+          "description": "Reason when voided."
+        },
+        "createdByUid": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$",
+          "description": "Actor UID who created the record."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server creation timestamp."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server update timestamp."
+        }
+      },
+      "required": ["id", "businessId", "ownerId", "idempotencyKey", "type", "amountMinor", "currency", "convertedAmountMinor", "toCurrency", "exchangeRateScaled", "feeMinor", "date", "time", "description", "accountId", "toAccountId", "categoryId", "categoryLabelSnapshot", "partyId", "partyNameSnapshot", "referenceNumber", "notes", "attachmentName", "attachmentMime", "dueDate", "status", "voidReason", "createdByUid", "createdAt", "updatedAt"]
+    },
+    "AuditEvent": {
+      "title": "AuditEvent",
+      "description": "Immutable append-only audit log entry for financial accountability.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$",
+          "description": "Audit event ID."
+        },
+        "businessId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$",
+          "description": "Parent business ID."
+        },
+        "ownerId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$",
+          "description": "Business owner UID."
+        },
+        "entityType": {
+          "type": "string",
+          "enum": ["transaction", "account", "category", "party", "business"],
+          "maxLength": 24,
+          "description": "Audited entity type."
+        },
+        "entityId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$",
+          "description": "Audited entity ID."
+        },
+        "action": {
+          "type": "string",
+          "enum": ["create", "update", "void", "delete", "restore"],
+          "maxLength": 24,
+          "description": "Mutation action."
+        },
+        "actorUid": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$",
+          "description": "Authenticated user UID performing the action."
+        },
+        "actorName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100,
+          "description": "Actor display name."
+        },
+        "summary": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 300,
+          "description": "Human-readable audit summary."
+        },
+        "previousSummary": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 500,
+          "description": "Previous state summary."
+        },
+        "newSummary": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 500,
+          "description": "New state summary."
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 240,
+          "description": "Optional reason provided by actor."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server creation timestamp."
+        }
+      },
+      "required": ["id", "businessId", "ownerId", "entityType", "entityId", "action", "actorUid", "actorName", "summary", "previousSummary", "newSummary", "reason", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "UserProfile",
+      "description": "Public non-PII user preferences and default workspace pointer."
+    },
+    "/users/{userId}/private/{docId}": {
+      "schema": "UserPrivateInfo",
+      "description": "Isolated PII subcollection storing user email."
+    },
+    "/businesses/{businessId}": {
+      "schema": "Business",
+      "description": "Isolated small-business workspace root document."
+    },
+    "/businesses/{businessId}/members/{memberId}": {
+      "schema": "BusinessMember",
+      "description": "RBAC membership records per business."
+    },
+    "/businesses/{businessId}/accounts/{accountId}": {
+      "schema": "Account",
+      "description": "Cash, bank, and mobile money accounts belonging to a business."
+    },
+    "/businesses/{businessId}/categories/{categoryId}": {
+      "schema": "Category",
+      "description": "Income and expense categories belonging to a business."
+    },
+    "/businesses/{businessId}/parties/{partyId}": {
+      "schema": "Party",
+      "description": "Customers, suppliers, and counterparties belonging to a business."
+    },
+    "/businesses/{businessId}/transactions/{transactionId}": {
+      "schema": "Transaction",
+      "description": "Financial ledger transactions belonging to a business."
+    },
+    "/businesses/{businessId}/auditEvents/{eventId}": {
+      "schema": "AuditEvent",
+      "description": "Immutable append-only audit trail belonging to a business."
+    }
+  }
+}

@@ -1,0 +1,193 @@
+name: Build Signed VUMIQ Cashbook Android APK (Standalone Repo)
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+    inputs:
+      version_code:
+        description: "Optional integer Android versionCode override (default: 1)"
+        required: false
+        default: "1"
+      version_name:
+        description: "Optional semantic versionName override (default: 1.0.0)"
+        required: false
+        default: "1.0.0"
+
+permissions:
+  contents: read
+
+jobs:
+  verify-debug-and-unit-tests:
+    name: Run JUnit Suite & Verify Debug APK (No Secrets Required)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Set up Gradle 8.11.1
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.11.1"
+
+      - name: Run Unit Tests (Accounting, Biometrics, Sync, Backup, Reminders, Receipts)
+        run: gradle testDebugUnitTest --stacktrace
+
+      - name: Assemble Debug APK
+        run: gradle assembleDebug --stacktrace
+
+  build-signed-release-apk:
+    name: Assemble & Cryptographically Verify Permanent-Signed Release APK
+    needs: verify-debug-and-unit-tests
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Set up Gradle 8.11.1
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.11.1"
+
+      - name: Validate & Decode Permanent Release Signing Keystore
+        env:
+          KEYSTORE_BASE64: ${{ secrets.VUMIQ_KEYSTORE_BASE64 }}
+          STORE_PASSWORD: ${{ secrets.VUMIQ_STORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.VUMIQ_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.VUMIQ_KEY_PASSWORD }}
+        run: |
+          set +x
+          MISSING=""
+          [ -z "$KEYSTORE_BASE64" ] && MISSING="${MISSING} VUMIQ_KEYSTORE_BASE64"
+          [ -z "$STORE_PASSWORD" ] && MISSING="${MISSING} VUMIQ_STORE_PASSWORD"
+          [ -z "$KEY_ALIAS" ] && MISSING="${MISSING} VUMIQ_KEY_ALIAS"
+          [ -z "$KEY_PASSWORD" ] && MISSING="${MISSING} VUMIQ_KEY_PASSWORD"
+
+          if [ -n "$MISSING" ]; then
+            echo "::error::Missing required permanent Android release signing secret(s):${MISSING}. Configure them under GitHub Settings -> Secrets and variables -> Actions."
+            exit 1
+          fi
+
+          KEYSTORE_FILE="${RUNNER_TEMP}/vumiq-permanent-release.jks"
+          printf '%s' "$KEYSTORE_BASE64" | tr -d '[:space:]' | base64 --decode > "$KEYSTORE_FILE"
+          chmod 600 "$KEYSTORE_FILE"
+
+          if [ ! -s "$KEYSTORE_FILE" ]; then
+            echo "::error::Decoded keystore file is empty or VUMIQ_KEYSTORE_BASE64 is invalid base64."
+            rm -f "$KEYSTORE_FILE"
+            exit 1
+          fi
+
+          if ! keytool -list -keystore "$KEYSTORE_FILE" -alias "$KEY_ALIAS" -storepass "$STORE_PASSWORD" >/dev/null 2>&1; then
+            echo "::error::Failed to open keystore or locate alias specified in VUMIQ_KEY_ALIAS. Verify VUMIQ_STORE_PASSWORD and VUMIQ_KEY_ALIAS."
+            rm -f "$KEYSTORE_FILE"
+            exit 1
+          fi
+
+          echo "SIGNING_KEYSTORE_PATH=${KEYSTORE_FILE}" >> "$GITHUB_ENV"
+
+      - name: Optional Firebase google-services.json Injection
+        working-directory: app
+        env:
+          GOOGLE_SERVICES_JSON: ${{ secrets.VUMIQ_GOOGLE_SERVICES_JSON }}
+        run: |
+          set +x
+          if [ -n "$GOOGLE_SERVICES_JSON" ]; then
+            printf '%s' "$GOOGLE_SERVICES_JSON" > google-services.json
+            python3 -m json.tool google-services.json >/dev/null
+            echo "Validated and injected google-services.json."
+          fi
+
+      - name: Assemble Permanent-Signed Release APK
+        env:
+          SIGNING_STORE_PASSWORD: ${{ secrets.VUMIQ_STORE_PASSWORD }}
+          SIGNING_KEY_ALIAS: ${{ secrets.VUMIQ_KEY_ALIAS }}
+          SIGNING_KEY_PASSWORD: ${{ secrets.VUMIQ_KEY_PASSWORD }}
+          INPUT_VERSION_CODE: ${{ inputs.version_code }}
+          INPUT_VERSION_NAME: ${{ inputs.version_name }}
+        run: |
+          set +x
+          VCODE="${INPUT_VERSION_CODE:-1}"
+          VNAME="${INPUT_VERSION_NAME:-1.0.0}"
+          gradle assembleRelease \
+            "-PvumiqVersionCode=${VCODE}" \
+            "-PvumiqVersionName=${VNAME}" \
+            --stacktrace
+          echo "RESOLVED_VERSION_NAME=${VNAME}" >> "$GITHUB_ENV"
+
+      - name: Verify APK Exists, Non-Empty & Cryptographically Signed (V1/V2/V3)
+        run: |
+          set -euo pipefail
+          RAW_APK="app/build/outputs/apk/release/app-release.apk"
+          if [ ! -f "$RAW_APK" ]; then
+            echo "::error::Expected release APK was not produced at ${RAW_APK}."
+            exit 1
+          fi
+
+          APK_BYTES=$(wc -c < "$RAW_APK" | tr -d '[:space:]')
+          if [ "$APK_BYTES" -lt 100000 ]; then
+            echo "::error::Release APK is unexpectedly small or empty (${APK_BYTES} bytes)."
+            exit 1
+          fi
+
+          SDK_ROOT="${ANDROID_SDK_ROOT:-${ANDROID_HOME:-}}"
+          APKSIGNER=$(find "$SDK_ROOT/build-tools" -name apksigner -type f 2>/dev/null | sort -V | tail -n 1 || true)
+          if [ -z "$APKSIGNER" ]; then
+            yes | sdkmanager "build-tools;35.0.0" >/dev/null
+            APKSIGNER="$SDK_ROOT/build-tools/35.0.0/apksigner"
+          fi
+
+          VERIFY_OUT="${RUNNER_TEMP}/apksigner_verify.txt"
+          "$APKSIGNER" verify --verbose --print-certs "$RAW_APK" | tee "$VERIFY_OUT"
+
+          if grep -qi "CN=Android Debug" "$VERIFY_OUT"; then
+            echo "::error::Release APK was signed with an Android Debug certificate!"
+            exit 1
+          fi
+          grep -q "Verified using v2 scheme (APK Signature Scheme v2): true" "$VERIFY_OUT"
+          grep -q "Verified using v3 scheme (APK Signature Scheme v3): true" "$VERIFY_OUT"
+
+          mkdir -p dist-apk
+          OUT_NAME="vumiq-cashbook-v${RESOLVED_VERSION_NAME:-1.0.0}-signed.apk"
+          cp "$RAW_APK" "dist-apk/${OUT_NAME}"
+          (cd dist-apk && sha256sum "${OUT_NAME}" > "${OUT_NAME}.sha256")
+
+      - name: Upload Signed Android APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: VUMIQ-Cashbook-Signed-Android-APK
+          path: |
+            dist-apk/*.apk
+            dist-apk/*.sha256
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Scrub Ephemeral Keystore & Service Files
+        if: always()
+        run: |
+          rm -f "${RUNNER_TEMP}/vumiq-permanent-release.jks"
+          rm -f "${RUNNER_TEMP}/apksigner_verify.txt"
+          rm -f app/google-services.json

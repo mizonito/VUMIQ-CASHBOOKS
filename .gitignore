@@ -1,0 +1,25 @@
+node_modules/
+build/
+dist/
+coverage/
+.DS_Store
+*.log
+.env*
+!.env.example
+.backups/
+.playwright-cli/
+
+# Android signing credentials & sensitive service configs (NEVER commit)
+*.jks
+*.keystore
+*.p12
+*.pfx
+keystore.properties
+**/keystore.properties
+**/google-services.json
+android-app/.gradle/
+android-app/local.properties
+android-app/build/
+android-app/app/build/
+android-app/dist-apk/
+
